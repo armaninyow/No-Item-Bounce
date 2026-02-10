@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "noitembounce",
+	"version": "${version}",
+	"name": "No Item Bounce",
+	"description": "Items spawn centered on the block with optional vertical bounce removal.",
+	"authors": [
+		"Armaninyow"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/no-item-bounce",
+		"sources": "https://github.com/armaninyow/No-Item-Bounce",
+		"issues": "https://github.com/armaninyow/No-Item-Bounce/issues"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/noitembounce/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.armaninyow.noitembounce.NoItemBounce"
+		],
+		"modmenu": [
+			"com.armaninyow.noitembounce.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"noitembounce.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"recommends": {
+		"modmenu": "*"
+	}
+}
