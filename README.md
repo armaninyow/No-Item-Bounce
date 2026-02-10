@@ -48,7 +48,7 @@ Perfect for survival players, redstone engineers, and anyone tired of chasing sc
     * [Mod Menu](https://modrinth.com/mod/modmenu) (Recommended for configuration)
 
 ### Steps
-1. Download the latest `.jar` from [Modrinth](https://modrinth.com/mod/inventory-overlay) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/inventory-overlay-hud).
+1. Download the latest `.jar` from [Modrinth](https://modrinth.com/mod/no-item-bounce) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/no-item-bounce).
 2. Move the file into your Minecraft `%appdata%/.minecraft/mods` folder.
 3. Launch the game using the Fabric profile.
 </details>
