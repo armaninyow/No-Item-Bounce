@@ -10,7 +10,7 @@
 	"contact": {
 		"homepage": "https://modrinth.com/mod/no-item-bounce",
 		"sources": "https://github.com/armaninyow/No-Item-Bounce",
-		"issues": "https://github.com/armaninyow/No-Item-Bounce/issues"
+		"issues": "https://github.com/armaninyow/No-Item-Bounce/discussions/categories/issues"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/noitembounce/icon.png",
@@ -28,7 +28,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.18.4",
-		"minecraft": "~1.21.10",
+		"minecraft": "~1.21.11",
 		"java": ">=21",
 		"fabric-api": "*"
 	},

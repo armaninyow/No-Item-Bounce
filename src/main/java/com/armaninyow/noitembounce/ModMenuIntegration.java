@@ -49,8 +49,8 @@ public class ModMenuIntegration implements ModMenuApi {
 		}
 
 		private Text getToggleButtonText() {
-			boolean isRemoved = NoItemBounce.shouldRemoveVerticalBounce();
-			return Text.literal("Remove Vertical Bounce: " + (isRemoved ? "§aON" : "§cOFF"));
+			boolean isEnabled = NoItemBounce.shouldRemoveVerticalBounce();
+			return Text.literal("Vertical Bounce: " + (isEnabled ? "§cDisabled" : "§aEnabled"));
 		}
 
 		@Override
@@ -62,7 +62,7 @@ public class ModMenuIntegration implements ModMenuApi {
 			
 			// Description
 			String desc1 = "Items always spawn centered on X/Z axes";
-			String desc2 = "Toggle removes the upward 'pop' when items drop";
+			String desc2 = "Disable vertical bounce to make items drop flat";
 			context.drawCenteredTextWithShadow(this.textRenderer, desc1, this.width / 2, this.height / 2 - 40, 0xAAAAAA);
 			context.drawCenteredTextWithShadow(this.textRenderer, desc2, this.width / 2, this.height / 2 - 28, 0xAAAAAA);
 		}

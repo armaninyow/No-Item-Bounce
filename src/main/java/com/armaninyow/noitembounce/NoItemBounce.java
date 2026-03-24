@@ -9,19 +9,22 @@ public class NoItemBounce implements ModInitializer {
 	public static final String MOD_ID = "noitembounce";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	private static boolean removeVerticalBounce = true;
+	private static ConfigManager.Config config;
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("No Item Bounce mod initialized!");
+		// Load config on initialization
+		config = ConfigManager.loadConfig();
+		LOGGER.info("No Item Bounce mod initialized! Vertical bounce removal: {}", config.removeVerticalBounce);
 	}
 
 	public static boolean shouldRemoveVerticalBounce() {
-		return removeVerticalBounce;
+		return config.removeVerticalBounce;
 	}
 
 	public static void setRemoveVerticalBounce(boolean value) {
-		removeVerticalBounce = value;
+		config.removeVerticalBounce = value;
+		ConfigManager.saveConfig(config);
 		LOGGER.info("Vertical bounce removal set to: {}", value);
 	}
 }
