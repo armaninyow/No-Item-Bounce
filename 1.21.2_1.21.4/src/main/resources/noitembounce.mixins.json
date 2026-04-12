@@ -1,0 +1,19 @@
+{
+	"required": true,
+	"package": "com.armaninyow.noitembounce.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ItemEntityMixin",
+		"BlockBreakMixin",
+		"ArmorStandMixin",
+		"ServerWorldMixin",
+		"ItemScattererMixin",
+		"ItemScattererInventoryMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
