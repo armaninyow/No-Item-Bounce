@@ -19,6 +19,8 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.0—1.21.x
+* Added center item drops from all living entities (mobs and players) at their exact death position, with respect to the vertical bounce setting
 ### 3.0.0—1.21.x
 * Added multi-version support covering Minecraft 1.21 through 1.21.11
 ### 2.0.0—1.21.11
