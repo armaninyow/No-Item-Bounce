@@ -4,8 +4,11 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ItemEntityMixin",
+		"EntityVelocityMixin",
 		"BlockBreakMixin",
 		"ArmorStandMixin",
+		"LivingEntityDeathMixin",
+		"ServerPlayerDeathMixin",
 		"ServerWorldMixin",
 		"ItemScattererMixin",
 		"ItemScattererInventoryMixin"
