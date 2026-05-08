@@ -34,14 +34,17 @@ public class ItemScattererMixin {
 
 			double centeredX = Math.floor(x) + 0.5;
 			double centeredZ = Math.floor(z) + 0.5;
-			double finalY = y;
 
 			if (NoItemBounce.shouldRemoveVerticalBounce()) {
-				finalY = Math.floor(y);
+				// Place item at the bottom of the broken block's space with zero Y velocity.
+				// It appears already landed — no bounce up, no fall down.
+				double bottomY = Math.floor(y);
+				itemEntity.setPosition(centeredX, bottomY, centeredZ);
+				itemEntity.setVelocity(0.0, 0.0, 0.0);
+			} else {
+				itemEntity.setPosition(centeredX, y, centeredZ);
+				itemEntity.setVelocity(0.0, itemEntity.getVelocity().y, 0.0);
 			}
-
-			itemEntity.setPosition(centeredX, finalY, centeredZ);
-			itemEntity.setVelocity(0.0, NoItemBounce.shouldRemoveVerticalBounce() ? 0.0 : itemEntity.getVelocity().y, 0.0);
 		}
 
 		return world.spawnEntity(itemEntity);

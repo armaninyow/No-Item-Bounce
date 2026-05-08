@@ -20,9 +20,7 @@ public class NoItemBounce implements ModInitializer {
 
 		// Register BEFORE event so the position is marked before drops are scattered
 		PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
-			if (isTargetStorageBlock(state.getBlock())) {
-				StorageBlockTracker.markStorageBlockBroken(pos);
-			}
+			StorageBlockTracker.markStorageBlockBroken(pos);
 			return true;
 		});
 	}

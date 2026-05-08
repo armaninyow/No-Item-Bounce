@@ -11,7 +11,8 @@
 		"ServerPlayerDeathMixin",
 		"ServerWorldMixin",
 		"ItemScattererMixin",
-		"ItemScattererInventoryMixin"
+		"ItemScattererInventoryMixin",
+		"FallingBlockEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

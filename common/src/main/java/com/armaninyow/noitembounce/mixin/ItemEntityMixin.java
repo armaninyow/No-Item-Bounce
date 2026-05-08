@@ -8,7 +8,6 @@ import com.armaninyow.noitembounce.StorageBlockTracker;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -38,25 +37,32 @@ public class ItemEntityMixin implements IVelocityLockable {
 
         double velocityY = self.getVelocity().y;
         BlockPos blockPos = BlockPos.ofFloored(x, y, z);
-        boolean isStorageBlockItem = StorageBlockTracker.isStorageBlockPosition(blockPos);
+        boolean isBlockItem = StorageBlockTracker.isStorageBlockPosition(blockPos);
 
-        NoItemBounce.LOGGER.info("[ItemEntityMixin] 5-param: item={} pos=({}, {}, {}) vel=({}, {}, {}) isStorage={}",
+        NoItemBounce.LOGGER.info("[ItemEntityMixin] 5-param: item={} pos=({}, {}, {}) vel=({}, {}, {}) isBlock={}",
             stack.getItem().getTranslationKey(), x, y, z,
-            self.getVelocity().x, velocityY, self.getVelocity().z, isStorageBlockItem);
+            self.getVelocity().x, velocityY, self.getVelocity().z, isBlockItem);
 
-        double finalVelocityY = NoItemBounce.shouldRemoveVerticalBounce() ? 0.0 : velocityY;
-
-        if (isStorageBlockItem) {
-            // Storage block drops: center on block middle
+        if (isBlockItem) {
             double centeredX = Math.floor(x) + 0.5;
             double centeredZ = Math.floor(z) + 0.5;
-            self.setPosition(centeredX, y, centeredZ);
-            self.setVelocity(0.0, finalVelocityY, 0.0);
+
+            if (NoItemBounce.shouldRemoveVerticalBounce()) {
+                // Place item at the bottom of the broken block's space with zero Y velocity.
+                // It appears already landed — no bounce up, no fall down.
+                double bottomY = Math.floor(y);
+                self.setPosition(centeredX, bottomY, centeredZ);
+                self.setVelocity(0.0, 0.0, 0.0);
+            } else {
+                self.setPosition(centeredX, y, centeredZ);
+                self.setVelocity(0.0, velocityY, 0.0);
+            }
+
             noitembounce$velocityLocked = true;
-            NoItemBounce.LOGGER.info("[ItemEntityMixin] -> storage locked at ({}, {}, {})", centeredX, y, centeredZ);
+            NoItemBounce.LOGGER.info("[ItemEntityMixin] -> block drop locked at ({}, {}, {})", centeredX, y, centeredZ);
 
         } else {
-            // Mob/player death drops: center on entity position, but only if actually dying
+            // Mob/player death drops
             MobDeathTracker.DeathEntry entry = MobDeathTracker.findNearbyDeathEntry(x, y, z);
             boolean shouldCenter = entry != null &&
                 (entry.isPlayer ? PlayerDeathTracker.isPlayerDying(entry.uuid) : true);
@@ -64,8 +70,14 @@ public class ItemEntityMixin implements IVelocityLockable {
             NoItemBounce.LOGGER.info("[ItemEntityMixin] -> entry={} shouldCenter={}", entry, shouldCenter);
 
             if (shouldCenter) {
-                self.setPosition(entry.pos.x, y, entry.pos.z);
-                self.setVelocity(0.0, finalVelocityY, 0.0);
+                if (NoItemBounce.shouldRemoveVerticalBounce()) {
+                    double bottomY = Math.floor(y);
+                    self.setPosition(entry.pos.x, bottomY, entry.pos.z);
+                    self.setVelocity(0.0, 0.0, 0.0);
+                } else {
+                    self.setPosition(entry.pos.x, y, entry.pos.z);
+                    self.setVelocity(0.0, velocityY, 0.0);
+                }
                 noitembounce$velocityLocked = true;
                 NoItemBounce.LOGGER.info("[ItemEntityMixin] -> death/mob locked at ({}, {}, {})", entry.pos.x, y, entry.pos.z);
             }
