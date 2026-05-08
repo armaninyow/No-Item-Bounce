@@ -19,6 +19,11 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.1—1.21.x
+* Added support for centering drops from falling blocks like gravel and sand
+* Fixed non-storage blocks not having their item drops centered on break
+* Fixed item drops bouncing upward on spawn when vertical bounce is disabled
+* Fixed bamboo, sugar cane, and decaying leaves drops not being centered
 ### 3.1.0—1.21.x
 * Added center item drops from all living entities (mobs and players) at their exact death position, with respect to the vertical bounce setting
 ### 3.0.0—1.21.x
