@@ -1,0 +1,6 @@
+{
+  "noitembounce.config.title": "No Item Bounce",
+  "noitembounce.config.category.general": "General",
+  "noitembounce.config.option.vertical_bounce": "Vertical Bounce",
+  "noitembounce.config.option.vertical_bounce.tooltip": "When enabled, dropped items will not bounce upward and will appear to land immediately at the drop position."
+}

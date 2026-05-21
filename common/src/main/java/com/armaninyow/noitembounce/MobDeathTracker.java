@@ -1,7 +1,6 @@
 package com.armaninyow.noitembounce;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,10 +10,10 @@ public class MobDeathTracker {
 
     public static class DeathEntry {
         public final UUID uuid;
-        public final Vec3d pos;
+        public final Vec3 pos;
         public final boolean isPlayer;
 
-        public DeathEntry(UUID uuid, Vec3d pos, boolean isPlayer) {
+        public DeathEntry(UUID uuid, Vec3 pos, boolean isPlayer) {
             this.uuid = uuid;
             this.pos = pos;
             this.isPlayer = isPlayer;
@@ -28,11 +27,11 @@ public class MobDeathTracker {
 
     private static final Map<UUID, DeathEntry> dyingEntities = new HashMap<>();
 
-    public static void markMobDying(UUID uuid, Vec3d pos) {
+    public static void markMobDying(UUID uuid, Vec3 pos) {
         dyingEntities.put(uuid, new DeathEntry(uuid, pos, false));
     }
 
-    public static void markPlayerDying(UUID uuid, Vec3d pos) {
+    public static void markPlayerDying(UUID uuid, Vec3 pos) {
         dyingEntities.put(uuid, new DeathEntry(uuid, pos, true));
     }
 
@@ -56,8 +55,7 @@ public class MobDeathTracker {
         return null;
     }
 
-    // Keep for backward compatibility
-    public static Vec3d findNearbyDeathPos(double x, double y, double z) {
+    public static Vec3 findNearbyDeathPos(double x, double y, double z) {
         DeathEntry entry = findNearbyDeathEntry(x, y, z);
         return entry != null ? entry.pos : null;
     }

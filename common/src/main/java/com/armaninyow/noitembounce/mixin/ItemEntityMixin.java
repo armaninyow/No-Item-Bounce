@@ -1,18 +1,20 @@
 package com.armaninyow.noitembounce.mixin;
 
+import com.armaninyow.noitembounce.BlockDropTracker;
 import com.armaninyow.noitembounce.IVelocityLockable;
 import com.armaninyow.noitembounce.MobDeathTracker;
 import com.armaninyow.noitembounce.NoItemBounce;
 import com.armaninyow.noitembounce.PlayerDeathTracker;
-import com.armaninyow.noitembounce.StorageBlockTracker;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
@@ -31,35 +33,28 @@ public class ItemEntityMixin implements IVelocityLockable {
         noitembounce$velocityLocked = locked;
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V", at = @At("RETURN"))
-    private void onItemEntityInit(World world, double x, double y, double z, ItemStack stack, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V", at = @At("RETURN"))
+    private void onItemEntityInit(Level level, double x, double y, double z, ItemStack stack, CallbackInfo ci) {
         ItemEntity self = (ItemEntity) (Object) this;
 
-        double velocityY = self.getVelocity().y;
-        BlockPos blockPos = BlockPos.ofFloored(x, y, z);
-        boolean isBlockItem = StorageBlockTracker.isStorageBlockPosition(blockPos);
+        double velocityY = self.getDeltaMovement().y;
+        BlockPos blockPos = BlockPos.containing(x, y, z);
+        boolean isBlockDrop = BlockDropTracker.isTrackedPosition(blockPos);
 
-        NoItemBounce.LOGGER.info("[ItemEntityMixin] 5-param: item={} pos=({}, {}, {}) vel=({}, {}, {}) isBlock={}",
-            stack.getItem().getTranslationKey(), x, y, z,
-            self.getVelocity().x, velocityY, self.getVelocity().z, isBlockItem);
-
-        if (isBlockItem) {
+        if (isBlockDrop) {
             double centeredX = Math.floor(x) + 0.5;
             double centeredZ = Math.floor(z) + 0.5;
 
             if (NoItemBounce.shouldRemoveVerticalBounce()) {
-                // Place item at the bottom of the broken block's space with zero Y velocity.
-                // It appears already landed — no bounce up, no fall down.
                 double bottomY = Math.floor(y);
-                self.setPosition(centeredX, bottomY, centeredZ);
-                self.setVelocity(0.0, 0.0, 0.0);
+                self.setPos(centeredX, bottomY, centeredZ);
+                self.setDeltaMovement(0.0, 0.0, 0.0);
             } else {
-                self.setPosition(centeredX, y, centeredZ);
-                self.setVelocity(0.0, velocityY, 0.0);
+                self.setPos(centeredX, y, centeredZ);
+                self.setDeltaMovement(0.0, velocityY, 0.0);
             }
 
             noitembounce$velocityLocked = true;
-            NoItemBounce.LOGGER.info("[ItemEntityMixin] -> block drop locked at ({}, {}, {})", centeredX, y, centeredZ);
 
         } else {
             // Mob/player death drops
@@ -67,21 +62,36 @@ public class ItemEntityMixin implements IVelocityLockable {
             boolean shouldCenter = entry != null &&
                 (entry.isPlayer ? PlayerDeathTracker.isPlayerDying(entry.uuid) : true);
 
-            NoItemBounce.LOGGER.info("[ItemEntityMixin] -> entry={} shouldCenter={}", entry, shouldCenter);
-
             if (shouldCenter) {
                 if (NoItemBounce.shouldRemoveVerticalBounce()) {
                     double bottomY = Math.floor(y);
-                    self.setPosition(entry.pos.x, bottomY, entry.pos.z);
-                    self.setVelocity(0.0, 0.0, 0.0);
+                    self.setPos(entry.pos.x, bottomY, entry.pos.z);
+                    self.setDeltaMovement(0.0, 0.0, 0.0);
                 } else {
-                    self.setPosition(entry.pos.x, y, entry.pos.z);
-                    self.setVelocity(0.0, velocityY, 0.0);
+                    self.setPos(entry.pos.x, y, entry.pos.z);
+                    self.setDeltaMovement(0.0, velocityY, 0.0);
                 }
                 noitembounce$velocityLocked = true;
-                NoItemBounce.LOGGER.info("[ItemEntityMixin] -> death/mob locked at ({}, {}, {})", entry.pos.x, y, entry.pos.z);
             }
-            // else: Q-drops, thrown items, etc. — leave completely untouched
+        }
+    }
+
+    // Suppress the landing bounce (movement.multiply(1.0, -0.5, 1.0)) that
+    // happens in tick() when an item hits the ground, if vertical bounce is disabled.
+    @Redirect(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V",
+            ordinal = 0
+        )
+    )
+    private void suppressLandingBounce(ItemEntity self, Vec3 movement) {
+        if (NoItemBounce.shouldRemoveVerticalBounce()) {
+            // Zero out Y so the item stays on the ground instead of bouncing
+            self.setDeltaMovement(movement.x, 0.0, movement.z);
+        } else {
+            self.setDeltaMovement(movement);
         }
     }
 }

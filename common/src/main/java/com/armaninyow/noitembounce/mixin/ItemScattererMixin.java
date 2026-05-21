@@ -1,52 +1,63 @@
 package com.armaninyow.noitembounce.mixin;
 
+import com.armaninyow.noitembounce.BlockDropTracker;
 import com.armaninyow.noitembounce.NoItemBounce;
-import com.armaninyow.noitembounce.StorageBlockTracker;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import com.armaninyow.noitembounce.ShearTracker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Containers;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(ItemScatterer.class)
+@Mixin(Containers.class)
 public class ItemScattererMixin {
 
 	@Redirect(
-		method = "spawn(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V",
+		method = "dropItemStack(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z"
+			target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"
 		)
 	)
-	private static boolean redirectItemSpawn(World world, net.minecraft.entity.Entity entity) {
+	private static boolean redirectItemSpawn(Level level, Entity entity) {
 		if (!(entity instanceof ItemEntity itemEntity)) {
-			return world.spawnEntity(entity);
+			return level.addFreshEntity(entity);
 		}
 
-		BlockPos pos = itemEntity.getBlockPos();
+		double x = itemEntity.getX();
+		double y = itemEntity.getY();
+		double z = itemEntity.getZ();
+		BlockPos pos = itemEntity.blockPosition();
 
-		if (StorageBlockTracker.isStorageBlockPosition(pos)) {
-			double x = itemEntity.getX();
-			double z = itemEntity.getZ();
-			double y = itemEntity.getY();
-
-			double centeredX = Math.floor(x) + 0.5;
-			double centeredZ = Math.floor(z) + 0.5;
-
+		// Check shear tracker first (for Mooshroom which bypasses spawnAtLocation)
+		Vec3 shearPos = ShearTracker.findNearbyShearPos(x, y, z);
+		if (shearPos != null) {
 			if (NoItemBounce.shouldRemoveVerticalBounce()) {
-				// Place item at the bottom of the broken block's space with zero Y velocity.
-				// It appears already landed — no bounce up, no fall down.
-				double bottomY = Math.floor(y);
-				itemEntity.setPosition(centeredX, bottomY, centeredZ);
-				itemEntity.setVelocity(0.0, 0.0, 0.0);
+				itemEntity.setPos(shearPos.x, Math.floor(shearPos.y), shearPos.z);
+				itemEntity.setDeltaMovement(0.0, 0.0, 0.0);
 			} else {
-				itemEntity.setPosition(centeredX, y, centeredZ);
-				itemEntity.setVelocity(0.0, itemEntity.getVelocity().y, 0.0);
+				itemEntity.setPos(shearPos.x, y, shearPos.z);
+				itemEntity.setDeltaMovement(0.0, itemEntity.getDeltaMovement().y, 0.0);
+			}
+			return level.addFreshEntity(itemEntity);
+		}
+
+		// Then check block drop tracker (for broken blocks / storage blocks)
+		if (BlockDropTracker.isTrackedPosition(pos)) {
+			if (NoItemBounce.shouldRemoveVerticalBounce()) {
+				double bottomY = Math.floor(y);
+				itemEntity.setPos(Math.floor(x) + 0.5, bottomY, Math.floor(z) + 0.5);
+				itemEntity.setDeltaMovement(0.0, 0.0, 0.0);
+			} else {
+				itemEntity.setPos(Math.floor(x) + 0.5, y, Math.floor(z) + 0.5);
+				itemEntity.setDeltaMovement(0.0, itemEntity.getDeltaMovement().y, 0.0);
 			}
 		}
 
-		return world.spawnEntity(itemEntity);
+		return level.addFreshEntity(itemEntity);
 	}
 }
