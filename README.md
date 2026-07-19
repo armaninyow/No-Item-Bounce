@@ -19,6 +19,11 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 4.1.0—26.x
+* Added support for Minecraft 26.2
+* Added support for Minecarts with Chest and Minecarts with Hopper
+* Added support for Boats with Chest
+* Added support for ridden mobs with Chest (Donkeys, Mules, Llamas)
 ### 4.0.0—26.x
 * Added support for Minecraft 26.1, 26.1.1, and 26.1.2
 * Replaced Cloth Config with YetAnotherConfigLib (YACL) 3.9.3 for the in-game config screen
