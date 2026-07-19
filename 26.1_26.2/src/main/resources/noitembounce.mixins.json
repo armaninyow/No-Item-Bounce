@@ -1,0 +1,29 @@
+{
+	"required": true,
+	"package": "com.armaninyow.noitembounce.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"ItemEntityMixin",
+		"EntityVelocityMixin",
+		"BlockBreakMixin",
+		"BlockEntityMixin",
+		"ArmorStandMixin",
+		"LivingEntityDeathMixin",
+		"ServerPlayerDeathMixin",
+		"ServerWorldMixin",
+		"ItemScattererMixin",
+		"FallingBlockEntityMixin",
+		"ShearableMixin",
+		"ShearInteractMixin",
+		"MushroomCowShearMixin",
+		"MinecartContainerDestroyMixin",
+		"VehicleItemDropMixin",
+		"ChestBoatDestroyMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

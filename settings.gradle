@@ -11,4 +11,4 @@ pluginManagement {
 
 rootProject.name = 'noitembounce'
 
-include '26.1.x'
+include '26.1_26.2'

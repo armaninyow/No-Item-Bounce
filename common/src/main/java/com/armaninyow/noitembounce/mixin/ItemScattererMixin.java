@@ -1,6 +1,7 @@
 package com.armaninyow.noitembounce.mixin;
 
 import com.armaninyow.noitembounce.BlockDropTracker;
+import com.armaninyow.noitembounce.VehicleDropTracker;
 import com.armaninyow.noitembounce.NoItemBounce;
 import com.armaninyow.noitembounce.ShearTracker;
 import net.minecraft.core.BlockPos;
@@ -41,6 +42,19 @@ public class ItemScattererMixin {
 				itemEntity.setDeltaMovement(0.0, 0.0, 0.0);
 			} else {
 				itemEntity.setPos(shearPos.x, y, shearPos.z);
+				itemEntity.setDeltaMovement(0.0, itemEntity.getDeltaMovement().y, 0.0);
+			}
+			return level.addFreshEntity(itemEntity);
+		}
+
+		// Check vehicle tracker (exact entity position for minecarts and boats)
+		Vec3 vehiclePos = VehicleDropTracker.findNearbyDropPos(x, y, z);
+		if (vehiclePos != null) {
+			if (NoItemBounce.shouldRemoveVerticalBounce()) {
+				itemEntity.setPos(vehiclePos.x, Math.floor(vehiclePos.y), vehiclePos.z);
+				itemEntity.setDeltaMovement(0.0, 0.0, 0.0);
+			} else {
+				itemEntity.setPos(vehiclePos.x, y, vehiclePos.z);
 				itemEntity.setDeltaMovement(0.0, itemEntity.getDeltaMovement().y, 0.0);
 			}
 			return level.addFreshEntity(itemEntity);
