@@ -3,6 +3,7 @@ package com.armaninyow.noitembounce.mixin;
 import com.armaninyow.noitembounce.NoItemBounce;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.Cushion;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecartContainer;
@@ -22,7 +23,7 @@ public class VehicleItemDropMixin {
     )
     private void onSpawnAtLocation(ServerLevel level, ItemStack itemStack, Vec3 offset, CallbackInfoReturnable<ItemEntity> cir) {
         Object self = (Object) this;
-        if (!(self instanceof AbstractMinecartContainer) && !(self instanceof AbstractBoat)) return;
+        if (!(self instanceof AbstractMinecartContainer) && !(self instanceof AbstractBoat) && !(self instanceof Cushion)) return;
 
         ItemEntity itemEntity = cir.getReturnValue();
         if (itemEntity == null) return;
